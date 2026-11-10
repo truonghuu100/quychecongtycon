@@ -294,14 +294,39 @@ $('#db').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
  else if(a==='delleaf'){if(!confirm('Xóa mục "'+cur.label+' '+cur.name+'"?'))return;const g=cur.g,k=g.ch.indexOf(cur);g.ch.splice(k,1);let nx=g.ch[k]||g.ch[k-1];if(!g.ch.length){D.splice(D.indexOf(g),1);nx=null}cur=null;rebuild();if(nx)show(nx);else $('#cl').click();return}
  else if(a==='delgrp'){if(!confirm('Xóa cả nhóm "'+cur.g.label+'" cùng toàn bộ nội dung bên trong?'))return;D.splice(D.indexOf(cur.g),1);cur=null;open=null;rebuild();$('#cl').click();return}
  mkTxt(cur);keep();render(cur);$('#db').scrollTop=st});
-$('#ed').onclick=()=>{edit=!edit;document.body.classList.toggle('editing',edit);$('#ed').textContent=edit?'✔ Xong chỉnh sửa':'✎ Chỉnh sửa';sh();dock();if(edit)toast('Chế độ chỉnh sửa: chọn một Điều rồi sửa trực tiếp. Bản nháp tự lưu trong trình duyệt; bấm "Tải bản mới" để xuất file HTML.');if(cur)show(cur)};
+/* ===== BẢO VỆ CHẾ ĐỘ CHỈNH SỬA =====
+   Mật khẩu yêu cầu khi mở chế độ chỉnh sửa. Đây là khóa truy cập giao diện,
+   không thay thế xác thực/phân quyền phía máy chủ. */
+const EDIT_PASSWORD='admin123';
+let editUnlocked=false;
+function requireEditAccess(){
+  if(editUnlocked && edit) return true;
+  const entered=prompt('Nhập mật khẩu để vào chế độ chỉnh sửa:');
+  if(entered===null) return false;
+  if(entered!==EDIT_PASSWORD){toast('Mật khẩu không đúng. Không thể vào chế độ chỉnh sửa.');return false;}
+  editUnlocked=true;
+  return true;
+}
+function lockEditAccess(){
+  editUnlocked=false;
+}
+$('#ed').onclick=()=>{
+  if(!edit && !requireEditAccess()) return;
+  edit=!edit;
+  document.body.classList.toggle('editing',edit);
+  $('#ed').textContent=edit?'✔ Xong chỉnh sửa':'✎ Chỉnh sửa';
+  sh();dock();
+  if(edit) toast('Đã mở chế độ chỉnh sửa. Bản nháp tự lưu trong trình duyệt; bấm "Tải bản mới" để xuất file HTML.');
+  else lockEditAccess();
+  if(cur)show(cur)
+};
 $('#ag').onclick=()=>{const lb=prompt('Tên nhóm mới (vd: Phụ lục IV hoặc Chương VII):');if(!lb)return;const nm=prompt('Tiêu đề nhóm (vd: BIỂU MẪU BÁO CÁO):','')||'',pl=!/^chương/i.test(lb),ks=['hq','lake','mill','weld','port','train','bld','aer','coil','bar'],t=lb.trim();
  const g={label:t,short:t.replace(/^phụ lục\s*/i,'PL ').replace(/^chương\s*/i,''),name:nm.trim(),unit:pl?'mục':'điều',pl:pl?1:0,img:ks[D.length%ks.length],ch:[{label:pl?'1.':'Điều 1.',name:'Tên mục mới',blocks:[['p','Nội dung…',false]]}]};D.push(g);rebuild();show(g.ch[0])};
 $('#sv').onclick=()=>{const a=SRC.indexOf('const D='),b=SRC.indexOf(',IMG=',a);let out=SRC.slice(0,a)+'const D='+clean().replace(/<\//g,'<\\/')+SRC.slice(b);out=out.replace(/const BUILD='[^']*'/,"const BUILD='v"+Date.now()+"'");
  const d=new Date(),n='Ban_do_Quy_che_cap_nhat_'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.html',u=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+out],{type:'text/html'})),l=document.createElement('a');
  l.href=u;l.download=n;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);try{localStorage.removeItem('qcDraft')}catch(e){}toast('Đã tải xuống: '+n)};
 const undo=()=>{if(!UNDO)return;D.splice(0,D.length,...JSON.parse(UNDO));UNDO=null;open=null;cur=null;build();$('#cl').click();fit();stats();keep();$('#un').style.display='none';toast('Đã hoàn tác về nội dung trước khi nhập.')};
-$('#un').onclick=undo;$('#im').onclick=()=>$('#fi').click();
+$('#un').onclick=undo;$('#im').onclick=()=>{if(!edit && !requireEditAccess())return;if(!edit){edit=true;document.body.classList.add('editing');$('#ed').textContent='✔ Xong chỉnh sửa';sh();dock();}$('#fi').click()};
 /* ---- đọc file .docx ngay trong trình duyệt ---- */
 async function unzip(buf,want){want=want||'word/document.xml';const dv=new DataView(buf),u8=new Uint8Array(buf);let e=u8.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);
