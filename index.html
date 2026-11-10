@@ -120,10 +120,42 @@ header{padding:8px 20px}.brand{display:flex;gap:14px;align-items:center;cursor:p
 .blk [contenteditable]{outline:0}.blk [contenteditable]:focus{background:#fffbe0}
 #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#073B78;color:#fff;padding:11px 18px;border-radius:24px;font-size:13.5px;box-shadow:0 8px 26px #0006;opacity:0;pointer-events:none;transition:.3s;z-index:90;max-width:90vw;line-height:1.45}
 #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#toast button{margin-left:10px;border:0;border-radius:12px;padding:3px 10px;background:#079BD3;color:#fff}
+
+/* ===== Xem biểu mẫu Word trực tiếp trong popup toàn màn hình ===== */
+#bmOpen{white-space:nowrap}
+#bmOverlay{position:fixed;inset:0;z-index:9999;background:#071a31d9;display:none;align-items:stretch;justify-content:center;padding:0}
+#bmOverlay.show{display:flex}
+#bmWindow{width:100vw;height:100dvh;background:#eef3f8;display:flex;flex-direction:column;overflow:hidden}
+#bmHead{flex:none;display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(100deg,#073b78,#0a56a3);color:white;box-shadow:0 2px 12px #0003}
+#bmHead strong{font-size:16px;flex:1}
+#bmHead button{border:1px solid #ffffff70;background:#ffffff20;color:white;border-radius:8px;padding:8px 13px;font-weight:600}
+#bmHead button:hover{background:#ffffff3d}
+#bmList{display:flex;gap:10px;flex-wrap:wrap;padding:14px;background:white;border-bottom:1px solid #cbd8e6}
+#bmList button{border:1px solid #b9cfe6;background:#f5f9fe;color:#073b78;border-radius:9px;padding:10px 14px;font-weight:700}
+#bmList button.active{background:#073b78;color:#fff}
+#bmStatus{padding:8px 16px;color:#52677f;background:#f8fbff;font-size:13px;border-bottom:1px solid #d8e2ed}
+#bmContent{flex:1;overflow:auto;padding:22px;display:flex;justify-content:center;align-items:flex-start}
+#bmContent .docx-wrapper{background:transparent;padding:0!important;width:100%}
+#bmContent .docx{box-shadow:0 2px 14px #18324b22;margin:0 auto 18px!important}
+#bmContent .docx table{border-collapse:collapse}
+@media(max-width:650px){#bmHead{padding:9px;gap:7px}#bmHead strong{font-size:13px}#bmHead button{padding:7px 9px;font-size:12px}#bmList{gap:6px;padding:9px}#bmList button{padding:8px;font-size:12px}#bmContent{padding:8px}}
 </style></head><body>
-<header><div class="brand" id="br" title="Về trang bìa"><img id="lg1" alt="Hòa Phát"><div><b>QUY CHẾ QUẢN LÝ, ĐIỀU HÀNH VÀ PHỐI HỢP HOẠT ĐỘNG</b><span>CÔNG TY CỔ PHẦN THÉP HÒA PHÁT DUNG QUẤT VÀ CÁC CÔNG TY CON</span></div></div>
+<header><div class="brand" id="br" title="Về trang bìa"><img id="lg1" alt="Hòa Phát"><div><b>QUY CHẾ QUẢN LÝ, ĐIỀU HÀNH VÀ PHỐI HỢP HOẠT ĐỘNG</b><span>Công ty Cổ phần Thép Hòa Phát Dung Quất và các Công ty con · Bản tháng 11/2026</span></div></div>
 <div class="sp"></div><div id="sw"><input id="q" placeholder="Tìm điều khoản, từ khóa…" autocomplete="off"><div id="res"></div></div>
-<button class="btn" id="ed">✎ Chỉnh sửa</button><button class="btn" id="ag">＋ Thêm nhóm</button><button class="btn" id="im">⇪ Nhập từ Word</button><input type="file" id="fi" accept=".docx" hidden=""><button class="btn" id="un">↶ Hoàn tác</button><button class="btn" id="sv">⭳ Tải bản mới</button><button class="btn" id="home">⌂ Tổng quan</button><button class="btn" id="fs">⛶ Toàn màn hình</button></header>
+<button class="btn" id="bmOpen">▤ Biểu mẫu BM01–BM03</button><button class="btn" id="ed">✎ Chỉnh sửa</button><button class="btn" id="ag">＋ Thêm nhóm</button><button class="btn" id="im">⇪ Nhập từ Word</button><input type="file" id="fi" accept=".docx" hidden=""><button class="btn" id="un">↶ Hoàn tác</button><button class="btn" id="sv">⭳ Tải bản mới</button><button class="btn" id="home">⌂ Tổng quan</button><button class="btn" id="fs">⛶ Toàn màn hình</button></header>
+<div id="bmOverlay" aria-hidden="true">
+ <section id="bmWindow" role="dialog" aria-modal="true" aria-label="Xem biểu mẫu báo cáo">
+  <div id="bmHead"><strong id="bmTitle">BIỂU MẪU BÁO CÁO</strong><button id="bmClose" type="button">✕ Đóng</button></div>
+  <div id="bmList">
+   <button type="button" data-bm="BM01.docx">BM01 · Báo cáo định kỳ</button>
+   <button type="button" data-bm="BM02.docx">BM02 · Báo cáo chuyên đề</button>
+   <button type="button" data-bm="BM03.docx">BM03 · Báo cáo đột xuất</button>
+  </div>
+  <div id="bmStatus">Chọn một biểu mẫu để xem trực tiếp tại đây.</div>
+  <div id="bmContent"></div>
+ </section>
+</div>
+
 <div id="cover"><img class="lg" id="lg2" alt="Hòa Phát"><p class="cs">Công ty Cổ phần Thép Hòa Phát Dung Quất</p><h1>BÁO <span>CÁO</span></h1>
 <h3>Quy chế quản lý, điều hành và phối hợp hoạt động giữa Công ty Cổ phần Thép<br>Hòa Phát Dung Quất và các Công ty con</h3><div class="st" id="st"></div><div class="ph3" id="ph3"></div>
 <button id="go">Khám phá sơ đồ Quy chế →</button><div class="cf"><span>PHÒNG NHÂN SỰ</span><span>THÁNG 11/2026</span></div></div>
@@ -335,4 +367,44 @@ $('#fi').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)re
 sh();if(DRAFT)toast('Đã khôi phục bản chỉnh sửa chưa tải xuống.','Bỏ bản nháp',()=>{try{localStorage.removeItem('qcDraft')}catch(e){}location.reload()});
 
 fit();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>layout());
+
+/* ===== Trình xem DOCX trong popup full màn hình ===== */
+(()=>{
+ const overlay=document.getElementById('bmOverlay'),content=document.getElementById('bmContent'),
+ status=document.getElementById('bmStatus'),title=document.getElementById('bmTitle');
+ const files={
+  'BM01.docx':'BM01 · BÁO CÁO QUẢN TRỊ ĐỊNH KỲ',
+  'BM02.docx':'BM02 · BÁO CÁO QUẢN TRỊ CHUYÊN ĐỀ',
+  'BM03.docx':'BM03 · BÁO CÁO QUẢN TRỊ ĐỘT XUẤT'
+ };
+ let loaded=false,active='';
+ function open(){overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
+ function close(){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+ async function loadDoc(file){
+  open();title.textContent=files[file];active=file;
+  document.querySelectorAll('[data-bm]').forEach(b=>b.classList.toggle('active',b.dataset.bm===file));
+  content.innerHTML='';status.textContent='Đang tải biểu mẫu…';
+  try{
+   if(!loaded){
+    await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.js';sc.onload=resolve;sc.onerror=()=>reject(new Error('Không tải được thư viện xem Word'));document.head.appendChild(sc)});
+    loaded=true;
+   }
+   /* Tải DOCX từ chính Render Static Site: cùng origin, tránh lỗi CORS/API GitHub */
+   const url=new URL(file, window.location.href);
+   const response=await fetch(url.href,{cache:'no-store'});
+   if(!response.ok)throw new Error('Không tải được '+file+' từ website (HTTP '+response.status+'). Hãy kiểm tra file DOCX đã nằm cùng thư mục với index.html trong GitHub chưa.');
+   const bytes=await response.arrayBuffer();
+   await window.docx.renderAsync(bytes,content,null,{className:'docx',inWrapper:true,ignoreWidth:false,ignoreHeight:false,breakPages:true});
+   status.textContent='Đang xem: '+files[file]+' · Có thể cuộn để xem toàn bộ văn bản.';
+  }catch(err){
+   status.textContent='Không thể hiển thị biểu mẫu: '+(err&&err.message?err.message:'Lỗi không xác định')+'. Kiểm tra file Word trong thư mục gốc của website và thử tải lại.';
+   content.innerHTML='<div style="background:white;padding:22px;border-radius:10px;max-width:700px;color:#26384b">Không tải được bản xem trước. Vui lòng kiểm tra kết nối mạng hoặc file Word trên GitHub có đúng tên <b>'+file+'</b> và repository đang ở chế độ Public.</div>';
+  }
+ }
+ document.getElementById('bmOpen').addEventListener('click',()=>{open();status.textContent='Chọn BM01, BM02 hoặc BM03 để xem trực tiếp.';content.innerHTML='';title.textContent='BIỂU MẪU BÁO CÁO'});
+ document.getElementById('bmClose').addEventListener('click',close);
+ overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+ document.querySelectorAll('[data-bm]').forEach(b=>b.addEventListener('click',()=>loadDoc(b.dataset.bm)));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('show'))close()});
+})();
 </script></body></html>
