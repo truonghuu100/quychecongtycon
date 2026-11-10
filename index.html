@@ -139,7 +139,18 @@ header{padding:8px 20px}.brand{display:flex;gap:14px;align-items:center;cursor:p
 #bmContent .docx{box-shadow:0 2px 14px #18324b22;margin:0 auto 18px!important}
 #bmContent .docx table{border-collapse:collapse}
 @media(max-width:650px){#bmHead{padding:9px;gap:7px}#bmHead strong{font-size:13px}#bmHead button{padding:7px 9px;font-size:12px}#bmList{gap:6px;padding:9px}#bmList button{padding:8px;font-size:12px}#bmContent{padding:8px}}
-</style></head><body>
+#bmContent{height:calc(100vh - 145px);min-height:300px;overflow:hidden;padding:0!important}#bmContent iframe{height:100%!important}
+</style><style>
+#bmContent .bm-word{max-width:850px;margin:22px auto;background:#fff;padding:48px 58px;box-shadow:0 2px 14px #17385a18;color:#222;line-height:1.55;overflow-wrap:anywhere}
+#bmContent .bm-word p{margin:0 0 8px;white-space:pre-wrap}
+#bmContent .bm-word table{border-collapse:collapse;width:100%;margin:12px 0;table-layout:auto}
+#bmContent .bm-word td,#bmContent .bm-word th{border:1px solid #555;padding:5px 7px;vertical-align:top}
+#bmContent .bm-word img{max-width:100%;height:auto}
+#bmContent .bm-word h1,#bmContent .bm-word h2,#bmContent .bm-word h3{text-align:inherit;margin:14px 0 8px}
+@media(max-width:700px){#bmContent .bm-word{padding:22px 16px;margin:10px}}
+#bmContent{height:calc(100vh - 145px);min-height:300px;overflow:hidden;padding:0!important}#bmContent iframe{height:100%!important}
+</style>
+</head><body>
 <header><div class="brand" id="br" title="Về trang bìa"><img id="lg1" alt="Hòa Phát"><div><b>QUY CHẾ QUẢN LÝ, ĐIỀU HÀNH VÀ PHỐI HỢP HOẠT ĐỘNG</b><span>Công ty Cổ phần Thép Hòa Phát Dung Quất và các Công ty con · Bản tháng 11/2026</span></div></div>
 <div class="sp"></div><div id="sw"><input id="q" placeholder="Tìm điều khoản, từ khóa…" autocomplete="off"><div id="res"></div></div>
 <button class="btn" id="bmOpen">▤ Biểu mẫu BM01–BM03</button><button class="btn" id="ed">✎ Chỉnh sửa</button><button class="btn" id="ag">＋ Thêm nhóm</button><button class="btn" id="im">⇪ Nhập từ Word</button><input type="file" id="fi" accept=".docx" hidden=""><button class="btn" id="un">↶ Hoàn tác</button><button class="btn" id="sv">⭳ Tải bản mới</button><button class="btn" id="home">⌂ Tổng quan</button><button class="btn" id="fs">⛶ Toàn màn hình</button></header>
@@ -147,9 +158,9 @@ header{padding:8px 20px}.brand{display:flex;gap:14px;align-items:center;cursor:p
  <section id="bmWindow" role="dialog" aria-modal="true" aria-label="Xem biểu mẫu báo cáo">
   <div id="bmHead"><strong id="bmTitle">BIỂU MẪU BÁO CÁO</strong><button id="bmClose" type="button">✕ Đóng</button></div>
   <div id="bmList">
-   <button type="button" data-bm="BM01.docx">BM01 · Báo cáo định kỳ</button>
-   <button type="button" data-bm="BM02.docx">BM02 · Báo cáo chuyên đề</button>
-   <button type="button" data-bm="BM03.docx">BM03 · Báo cáo đột xuất</button>
+   <button type="button" data-bm="BM01.pdf">BM01 · Báo cáo định kỳ</button>
+   <button type="button" data-bm="BM02.pdf">BM02 · Báo cáo chuyên đề</button>
+   <button type="button" data-bm="BM03.pdf">BM03 · Báo cáo đột xuất</button>
   </div>
   <div id="bmStatus">Chọn một biểu mẫu để xem trực tiếp tại đây.</div>
   <div id="bmContent"></div>
@@ -368,43 +379,40 @@ sh();if(DRAFT)toast('Đã khôi phục bản chỉnh sửa chưa tải xuống.'
 
 fit();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>layout());
 
-/* ===== Trình xem DOCX trong popup full màn hình ===== */
+/* ===== Trình xem PDF trong popup toàn màn hình ===== */
 (()=>{
  const overlay=document.getElementById('bmOverlay'),content=document.getElementById('bmContent'),
  status=document.getElementById('bmStatus'),title=document.getElementById('bmTitle');
  const files={
-  'BM01.docx':'BM01 · BÁO CÁO QUẢN TRỊ ĐỊNH KỲ',
-  'BM02.docx':'BM02 · BÁO CÁO QUẢN TRỊ CHUYÊN ĐỀ',
-  'BM03.docx':'BM03 · BÁO CÁO QUẢN TRỊ ĐỘT XUẤT'
+  'BM01.pdf':'BM01 · BÁO CÁO QUẢN TRỊ ĐỊNH KỲ',
+  'BM02.pdf':'BM02 · BÁO CÁO QUẢN TRỊ CHUYÊN ĐỀ',
+  'BM03.pdf':'BM03 · BÁO CÁO QUẢN TRỊ ĐỘT XUẤT'
  };
- let loaded=false,active='';
  function open(){overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
- function close(){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');document.body.style.overflow=''}
- async function loadDoc(file){
-  open();title.textContent=files[file];active=file;
+ function close(){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';content.innerHTML=''}
+ async function loadPdf(file){
+  open();title.textContent=files[file];
   document.querySelectorAll('[data-bm]').forEach(b=>b.classList.toggle('active',b.dataset.bm===file));
-  content.innerHTML='';status.textContent='Đang tải biểu mẫu…';
+  content.innerHTML='';status.textContent='Đang tải biểu mẫu PDF…';
   try{
-   if(!loaded){
-    await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.js';sc.onload=resolve;sc.onerror=()=>reject(new Error('Không tải được thư viện xem Word'));document.head.appendChild(sc)});
-    loaded=true;
-   }
-   /* Tải DOCX từ chính Render Static Site: cùng origin, tránh lỗi CORS/API GitHub */
-   const url=new URL(file, window.location.href);
-   const response=await fetch(url.href,{cache:'no-store'});
-   if(!response.ok)throw new Error('Không tải được '+file+' từ website (HTTP '+response.status+'). Hãy kiểm tra file DOCX đã nằm cùng thư mục với index.html trong GitHub chưa.');
-   const bytes=await response.arrayBuffer();
-   await window.docx.renderAsync(bytes,content,null,{className:'docx',inWrapper:true,ignoreWidth:false,ignoreHeight:false,breakPages:true});
-   status.textContent='Đang xem: '+files[file]+' · Có thể cuộn để xem toàn bộ văn bản.';
+   const url=new URL(file,document.baseURI);
+   const response=await fetch(url.href,{method:'HEAD',cache:'no-store'});
+   if(!response.ok)throw new Error('Không tìm thấy '+file+' trên website (HTTP '+response.status+'). Kiểm tra file PDF đã được đưa vào thư mục Publish của Render.');
+   const frame=document.createElement('iframe');
+   frame.title=files[file];frame.src=url.href+'#toolbar=1&navpanes=1&view=FitH';
+   frame.style.cssText='display:block;width:100%;height:100%;min-height:70vh;border:0;background:#e8edf3';
+   frame.setAttribute('loading','eager');
+   content.appendChild(frame);
+   status.textContent='Đang xem: '+files[file]+' · Có thể phóng to, thu nhỏ và chuyển trang ngay trong khung xem.';
   }catch(err){
-   status.textContent='Không thể hiển thị biểu mẫu: '+(err&&err.message?err.message:'Lỗi không xác định')+'. Kiểm tra file Word trong thư mục gốc của website và thử tải lại.';
-   content.innerHTML='<div style="background:white;padding:22px;border-radius:10px;max-width:700px;color:#26384b">Không tải được bản xem trước. Vui lòng kiểm tra kết nối mạng hoặc file Word trên GitHub có đúng tên <b>'+file+'</b> và repository đang ở chế độ Public.</div>';
+   console.error('Lỗi xem PDF:',err);status.textContent=err.message;
+   content.innerHTML='<div style="background:#fff;padding:22px;border-radius:10px;max-width:800px;color:#26384b;margin:22px auto">'+err.message+'</div>';
   }
  }
- document.getElementById('bmOpen').addEventListener('click',()=>{open();status.textContent='Chọn BM01, BM02 hoặc BM03 để xem trực tiếp.';content.innerHTML='';title.textContent='BIỂU MẪU BÁO CÁO'});
+ document.getElementById('bmOpen').addEventListener('click',()=>{open();status.textContent='Chọn BM01, BM02 hoặc BM03 để xem PDF.';content.innerHTML='';title.textContent='BIỂU MẪU BÁO CÁO'});
  document.getElementById('bmClose').addEventListener('click',close);
  overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
- document.querySelectorAll('[data-bm]').forEach(b=>b.addEventListener('click',()=>loadDoc(b.dataset.bm)));
+ document.querySelectorAll('[data-bm]').forEach(b=>b.addEventListener('click',()=>loadPdf(b.dataset.bm.replace(/\.docx$/i,'.pdf'))));
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('show'))close()});
 })();
 </script></body></html>
